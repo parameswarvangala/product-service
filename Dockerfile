@@ -8,6 +8,7 @@ RUN apk add --no-cache maven
 
 # Copy project files
 COPY pom.xml .
+RUN mvn dependency:resolve-plugins dependency:resolve -B
 COPY src ./src
 
 # Package the application (skip tests for speed)
@@ -32,8 +33,6 @@ ENV JAVA_OPTS="\
   -XX:+UseStringDeduplication \
   -XX:+HeapDumpOnOutOfMemoryError \
   -XX:HeapDumpPath=/tmp/heapdump.hprof \
-  -XX:+PrintGCDetails \
-  -XX:+PrintGCDateStamps \
   -Xlog:gc*:file=/tmp/gc.log:time \
   -Dfile.encoding=UTF-8"
 
@@ -48,7 +47,7 @@ RUN chown -R appuser:appgroup /app
 USER appuser
 
 # Optional: Expose app port (for documentation and Docker Compose)
-EXPOSE 8080
+EXPOSE 8081
 
 # Start the application with container-friendly JVM options
 ENTRYPOINT exec java $JAVA_OPTS -jar app.jar
